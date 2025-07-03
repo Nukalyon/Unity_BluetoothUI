@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using UnityEngine;
 
 public class BluetoothReceiver : MonoBehaviour
@@ -15,6 +16,7 @@ public class BluetoothReceiver : MonoBehaviour
     public void OnMessageArrived(string msg)
     {
         Debug.Log("Message recu du plugin Kotlin : " + msg);
+        //Assert.IsTrue(true);
 
         // Exemple de traitement du message
         if (msg.Contains("connected"))

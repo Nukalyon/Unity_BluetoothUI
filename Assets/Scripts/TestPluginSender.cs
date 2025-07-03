@@ -1,30 +1,56 @@
+using System;
 using UnityEngine;
 
 public class TestPluginSender : MonoBehaviour
 {
-    static AndroidJavaObject pluginClass = new AndroidJavaObject("com.example.plugin.BluetoothUnityBridge");
-    static bool isInitialized = false;
-    
-    void Start()
+    private AndroidJavaClass pluginClass;
+    private bool isInitialized = false;
+
+    private void Start()
     {
-        using (pluginClass)
+        // Initialize the Android plugin
+        try
         {
-            if (!isInitialized)
-            {
-                AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-                pluginClass.CallStatic("init", unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"));
-                //Call isInitialized() function to be sure here
-                Debug.Log("Bluetooth plugin initialized.");
-                isInitialized = true;
-            }
+            //var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            pluginClass = new AndroidJavaClass("com.example.plugin.MyUnityPlayer");
+            // if (pluginClass != null)
+            // {
+            //     pluginClass.Call("init", unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"));
+            //     // Optionally check if initialization was successful
+            //     isInitialized = true;
+            //     Debug.Log("Bluetooth plugin initialized.");
+            // }
+            // else
+            // {
+            //     Debug.LogError("Failed to create instance of BluetoothUnityBridge.");
+            // }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Error initializing Bluetooth plugin: " + e.Message);
         }
     }
-    
-    public static void notify()
+
+    public void Notify()
     {
         if (isInitialized)
+            try
+            {
+                pluginClass.Call("notifyUnity", "TestPluginSender");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Error calling notifyUnity: " + e.Message);
+            }
+        else
+            Debug.LogWarning("Bluetooth plugin is not initialized.");
+    }
+
+    public void ShowToast()
+    {
+        if (pluginClass != null)
         {
-            pluginClass.CallStatic("notifyUnity", "TestPluginSender");
+            pluginClass.CallStatic("showToast", "showToast called from Unity");
         }
     }
 }
