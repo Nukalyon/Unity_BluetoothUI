@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class TestPluginSender : MonoBehaviour
 {
-    private AndroidJavaClass pluginClass;
-    private bool isInitialized = false;
+    private AndroidJavaClass _pluginClass;
+    private bool _isInitialized = false;
 
     private void Start()
     {
@@ -12,7 +12,7 @@ public class TestPluginSender : MonoBehaviour
         try
         {
             //var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            pluginClass = new AndroidJavaClass("com.example.plugin.MyUnityPlayer");
+            _pluginClass = new AndroidJavaClass("com.example.plugin.MyUnityPlayer");
             // if (pluginClass != null)
             // {
             //     pluginClass.Call("init", unityPlayer.GetStatic<AndroidJavaObject>("currentActivity"));
@@ -33,12 +33,12 @@ public class TestPluginSender : MonoBehaviour
 
     public void Notify()
     {
-        if (isInitialized)
+        if (_isInitialized)
             try
             {
-                pluginClass.Call("notifyUnity", "TestPluginSender");
+                _pluginClass.Call("notifyUnity", "TestPluginSender");
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
                 Debug.LogError("Error calling notifyUnity: " + e.Message);
             }
@@ -48,9 +48,9 @@ public class TestPluginSender : MonoBehaviour
 
     public void ShowToast()
     {
-        if (pluginClass != null)
+        if (_pluginClass != null)
         {
-            pluginClass.CallStatic("showToast", "showToast called from Unity");
+            _pluginClass.CallStatic("showToast", "showToast called from Unity");
         }
     }
 }
