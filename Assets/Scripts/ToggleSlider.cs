@@ -13,27 +13,28 @@ public class ToggleSlider : MonoBehaviour, IPointerClickHandler
 
     [Header("Options Slider")] 
     [SerializeField, Range(0f, 1f)] protected float sliderValue;
-    public bool CurrentValue { get; private set;}
-    private bool previousValue;
-    private Slider slider;
+
+    internal bool CurrentValue { get; set;}
+    private bool _previousValue;
+    private Slider _slider;
     
     [Header("Slider Animation")]
     [SerializeField, Range(0f, 1f)] private float animationDuration = 0.5f;
     [SerializeField] private AnimationCurve slideEase = AnimationCurve.EaseInOut(0,0,1,1);
     
-    private Coroutine animateSliderCoroutine;
-    protected Action transitionEffect;
+    private Coroutine _animateSliderCoroutine;
+    protected Action TransitionEffect;
     
     [Header("Slider Events")]
     [SerializeField] private UnityEvent onToggleOn;
     [SerializeField] private UnityEvent onToggleOff;
     
-    private ToggleSwitchManager toggleSwitchManager;
+    private ToggleSwitchGroupManager _toggleSwitchManager;
 
     protected void OnValidate()
     {
         SetupToggleComponents();
-        slider.value = sliderValue;
+        _slider.value = sliderValue;
     }
 
     protected virtual void Awake()
@@ -44,7 +45,7 @@ public class ToggleSlider : MonoBehaviour, IPointerClickHandler
 
     private void SetupToggleComponents()
     {
-        if (slider != null)
+        if (_slider != null)
         {
             return;
         }
@@ -53,22 +54,22 @@ public class ToggleSlider : MonoBehaviour, IPointerClickHandler
 
     private void SetupSliderComponents()
     {
-        slider = GetComponent<Slider>();
-        if (slider == null)
+        _slider = GetComponent<Slider>();
+        if (_slider == null)
         {
             Debug.LogWarning("SliderComponents not found");
             return;
         }
-        slider.interactable = false;
-        var sliderColor = slider.colors;
+        _slider.interactable = false;
+        var sliderColor = _slider.colors;
         sliderColor.disabledColor = Color.white;
-        slider.colors = sliderColor;
-        slider.transition = Selectable.Transition.None;
+        _slider.colors = sliderColor;
+        _slider.transition = Selectable.Transition.None;
     }
 
-    public void SetupManager(ToggleSwitchManager manager)
+    public void SetupManager(ToggleSwitchGroupManager manager)
     {
-        toggleSwitchManager = manager;
+        _toggleSwitchManager = manager;
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -78,9 +79,9 @@ public class ToggleSlider : MonoBehaviour, IPointerClickHandler
 
     private void Toggle()
     {
-        if (toggleSwitchManager != null)
+        if (_toggleSwitchManager != null)
         {
-            toggleSwitchManager.ToggleGroup(this);
+            _toggleSwitchManager.ToggleGroup(this);
         }
         else
         {
@@ -88,28 +89,36 @@ public class ToggleSlider : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    public void ToggleByGroupManager(bool valueToSetTo)
+    {
+        SetStateAndStartAnimation(valueToSetTo);
+    }
+
     private void SetStateAndStartAnimation(bool state)
     {
-        previousValue = CurrentValue;
+        _previousValue = CurrentValue;
         CurrentValue = state;
-        if (previousValue != CurrentValue) {
+        if (_previousValue != CurrentValue) {
             onToggleOn?.Invoke();
         }
         else {
             onToggleOff?.Invoke();
         }
 
-        if (animateSliderCoroutine != null)
+        if (_animateSliderCoroutine != null)
         {
-            StopCoroutine(animateSliderCoroutine);
+            StopCoroutine(_animateSliderCoroutine);
         }
 
-        animateSliderCoroutine = StartCoroutine(AnimateSlider());
+        if (gameObject.activeInHierarchy)
+        {
+            _animateSliderCoroutine = StartCoroutine(AnimateSlider());
+        }
     }
 
     private IEnumerator AnimateSlider()
     {
-        float startValue = slider.value;
+        float startValue = _slider.value;
         float endValue = CurrentValue ? 1 : 0;
 
         float time = 0;
@@ -119,11 +128,11 @@ public class ToggleSlider : MonoBehaviour, IPointerClickHandler
             {
                 time += Time.deltaTime;
                 float lerpFactor = slideEase.Evaluate(time / animationDuration);
-                slider.value = sliderValue = Mathf.Lerp(startValue, endValue, lerpFactor);
-                transitionEffect?.Invoke();
+                _slider.value = sliderValue = Mathf.Lerp(startValue, endValue, lerpFactor);
+                TransitionEffect?.Invoke();
                 yield return null;
             }
         }
-        slider.value = endValue;
+        _slider.value = endValue;
     }
 }

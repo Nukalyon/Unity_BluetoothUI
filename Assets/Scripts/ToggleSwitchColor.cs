@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,7 +12,7 @@ public class ToggleSwitchColor : ToggleSlider
     [SerializeField] private Color backgroundColorOff = new Color(229f, 231f, 235f, 255f);
 
 
-    private new void onValidate()
+    private new void OnValidate()
     {
         base.OnValidate();
         ChangeColor();
@@ -21,12 +20,12 @@ public class ToggleSwitchColor : ToggleSlider
 
     private void OnEnable()
     {
-        transitionEffect += ChangeColor;
+        TransitionEffect += ChangeColor;
     }
 
     private void OnDisable()
     {
-        transitionEffect -= ChangeColor;
+        TransitionEffect -= ChangeColor;
     }
 
     protected override void Awake()
