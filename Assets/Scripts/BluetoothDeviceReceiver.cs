@@ -26,7 +26,6 @@ public class BluetoothDeviceReceiver : MonoBehaviour
         {
             //Debug.Log($"Device Name: {device.name}, Address: {device.address}, Type: {device.deviceType}, RSSI: {device.rssi}");
             DeviceDisplay obj = this.AddComponent<DeviceDisplay>();
-            //Add them in the list in Unity (this game-object)
             obj.SetDevice(device);
         }
     }

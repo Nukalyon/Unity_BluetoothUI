@@ -4,12 +4,20 @@ using UnityEngine.UI;
 
 public class OptionMenuController : MonoBehaviour
 {
+    [Header("Buttons Switch Panels")]
     public List<Button> buttons = new();
+    [Header("List of UI Panels")]
     public List<GameObject> panels = new();
+    
+    [Header("Initialize simple UI")]
+    [SerializeField] public GameObject inputField;
+    
+    
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // Initialize the buttons Listener
         if (buttons.Count != 0)
         {
             foreach(Button btn in buttons)
@@ -17,7 +25,7 @@ public class OptionMenuController : MonoBehaviour
                 btn.onClick.AddListener(delegate{ToggleMenu(btn);});
             }
         }
-
+        // Initialize the visibility of the panels
         if (panels.Count != 0)
         {
             foreach(GameObject go in panels)
@@ -27,6 +35,12 @@ public class OptionMenuController : MonoBehaviour
                     go.SetActive(false);
                 }
             }
+        }
+        // Initialize the regex display
+        if (inputField != null)
+        {
+            InputField fieldRegex = inputField.GetComponent<InputField>();
+            fieldRegex.text = TestPlugin.GetRegex() == null ? ".*" : TestPlugin.GetRegex();
         }
     }
 

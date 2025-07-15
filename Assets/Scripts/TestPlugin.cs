@@ -60,4 +60,15 @@ public class TestPlugin : MonoBehaviour
             Debug.LogError("TestPlugin instance or plugin not initialized");
         }
     }
+
+    public static string GetRegex()
+    {
+        if (_instance != null && _instance._pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> getRegex");
+            return _instance._pluginClass.CallStatic<string>("getRegex");
+        }
+
+        return null;
+    }
 }
