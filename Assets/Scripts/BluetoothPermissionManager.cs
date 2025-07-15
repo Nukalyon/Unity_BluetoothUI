@@ -1,12 +1,11 @@
-
-using UnityEngine;
 using System;
+using UnityEngine;
 
 public class BluetoothPermissionManager : AndroidJavaProxy
 {
     private AndroidJavaClass _unityPlayerClass;
     private AndroidJavaObject _managerInstance;
-    private Action<bool> permissionCallback;
+    private Action<bool> _permissionCallback;
 
     public BluetoothPermissionManager() : base("com.example.plugin.PermissionCallback")
     {
@@ -26,7 +25,7 @@ public class BluetoothPermissionManager : AndroidJavaProxy
 
     public void RequestPermissions(Action<bool> callback)
     {
-        permissionCallback = callback;
+        _permissionCallback = callback;
         
         AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
@@ -39,11 +38,11 @@ public class BluetoothPermissionManager : AndroidJavaProxy
     // Called from Kotlin
     public void OnPermissionResult(bool granted)
     {
-        if (permissionCallback != null)
+        if (_permissionCallback != null)
         {
             // Execute on main thread
             UnityMainThreadDispatcher.Instance().Enqueue(() => {
-                permissionCallback(granted);
+                _permissionCallback(granted);
             });
         }
     }

@@ -1,11 +1,25 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class TestPlugin : MonoBehaviour
 {
     private AndroidJavaClass _pluginClass;
-
-    private void Start()
+    private static TestPlugin _instance;
+    private void Awake()
+    {
+        if (_instance == null)
+        {
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
+            InitializePlugin();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+    private void InitializePlugin()
     {
         try
         {
@@ -17,6 +31,7 @@ public class TestPlugin : MonoBehaviour
         }
     }
 
+
     public void ShowToast()
     {
         if (_pluginClass != null)
@@ -24,19 +39,25 @@ public class TestPlugin : MonoBehaviour
             _pluginClass.CallStatic("showToast", "showToast called from Unity");
         }
     }
-    /*
-    public void Notify()
+
+    public void UpdateDevicePaired()
     {
-        if (_permissionsGranted)
-            try
-            {
-                _pluginClass.Call("notifyUnity", "TestPluginSender");
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("Error calling notifyUnity: " + e.Message);
-            }
+        if (_pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> getPairedDevices");
+            _pluginClass.CallStatic("getPairedDevices");
+        }
+    }
+    public static void ConnectToDevice(BluetoothDevice device)
+    {
+        if (_instance != null && _instance._pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> connectToDevice");
+            _instance._pluginClass.CallStatic("connectToDevice", device);
+        }
         else
-            Debug.LogWarning("Bluetooth plugin is not initialized.");
-    }*/
+        {
+            Debug.LogError("TestPlugin instance or plugin not initialized");
+        }
+    }
 }
