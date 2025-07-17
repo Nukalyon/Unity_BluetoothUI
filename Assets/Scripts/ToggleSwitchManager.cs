@@ -52,13 +52,13 @@ public class ToggleSwitchGroupManager : MonoBehaviour
         if (initialToggleSwitch != null)
         {
             //Call plugin to get bluetoothState
-            AndroidJavaClass plugin = new AndroidJavaClass("com.example.plugin.MyUnityPlayer");
-            bool isBluetoothEnabled = plugin.CallStatic<bool>("getBluetoothStatus");
-            Debug.Log("Bluetooth enabled = " + isBluetoothEnabled);
-            initialToggleSwitch.ToggleByGroupManager(isBluetoothEnabled);
+            //AndroidJavaClass plugin = new AndroidJavaClass("com.example.plugin.MyUnityPlayer");
+            //bool isBluetoothEnabled = plugin.CallStatic<bool>("getBluetoothStatus");
+            //Debug.Log("Bluetooth enabled = " + isBluetoothEnabled);
+            //initialToggleSwitch.ToggleByGroupManager(isBluetoothEnabled);
             
             // Debug.Log("ToggleSwitchGroupManager -> initialToggleSwitch != null");
-            // initialToggleSwitch.ToggleByGroupManager(false);
+            initialToggleSwitch.ToggleByGroupManager(false);
         }
     }
 
