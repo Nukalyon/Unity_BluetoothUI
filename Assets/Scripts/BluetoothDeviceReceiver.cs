@@ -1,31 +1,29 @@
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class BluetoothDeviceReceiver : MonoBehaviour
 {
     private List<BluetoothDevice> _pairedDevices = new();
+    private List<BluetoothDevice> _scannedDevices = new();
     public GameObject parentprefab;
     public GameObject buttonPrefab;
     
-    // Device type to icon mapping (you'll need to replace with actual sprites)
     private static Dictionary<string, Sprite> _deviceIcons;
     
+    /// <summary>
+    /// For this script to work, be sure your gameObject is correctly named :
+    /// -   List_Paired_Devices             MyUnityPlayer.kt -> getPairedDevices()
+    ///         or
+    /// -   List_Scanned_Devices            CustomBluetoothController -> receiverDeviceFound update
+    /// </summary>
     void Start()
     {
-        gameObject.name = "List_Paired_Devices";
         DontDestroyOnLoad(gameObject);
-        if (_pairedDevices.Count != 0 && _pairedDevices != null)
-        {
-            _pairedDevices.Clear();
-        }
-        // Unparent all childs if they exist at the start
-        gameObject.transform.DetachChildren();
+        ClearPairedDeviceButton();
+        ClearScannedDeviceButton();
         Debug.Assert(gameObject.transform.childCount == 0, "gameObject.transform.childCount == 0", this);
+        
         _deviceIcons = new Dictionary<string, Sprite>
         {
             { "PHONE",    Resources.Load<Sprite>($"Images/Phone_Icon") },
@@ -34,26 +32,110 @@ public class BluetoothDeviceReceiver : MonoBehaviour
             { "UNKNOWN",  Resources.Load<Sprite>($"Images/Unknown_Icon") }
         };
     }
+    
+    /// <summary>
+    /// This method will clear the list of the paired devices for a fresh start.
+    /// It will be called at the Start and when the main UI will be Enabled
+    /// </summary>
+    private void ClearPairedDeviceButton()
+    {
+        _pairedDevices.Clear();
+        foreach (Transform child in parentprefab.transform)
+        {
+            Destroy(child.gameObject);
+        }
+    }
+    
+    /// <summary>
+    /// This method is called before the app receive a device from the plugin.
+    /// It will clear the scanned devices for a fresh start when the scan UI is quit.
+    /// </summary>
+    private void ClearScannedDeviceButton()
+    {
+        _scannedDevices.Clear();
+        foreach (Transform child in parentprefab.transform)
+        {
+            Destroy(child.gameObject);
+        }
+    }
 
     /// <summary>
-    /// This method will be called from the Kotlin plugin.
+    /// This method will be called from the Kotlin plugin for getting paired devices.
     /// </summary>
     /// <param name="jsonDevices">The list of devices as json sent from the plugin</param>
-    public void OnDevicesReceive(string jsonDevices)
+    public void OnDevicesPairedReceive(string jsonDevices)
     {
         Debug.Log("Received devices list: " + jsonDevices);
         
         // Decode the JSON
         BluetoothDevice[] devices = JsonUtility.FromJson<BluetoothDeviceArray>("{\"devices\":" + jsonDevices + "}").devices;
-
-        // Process the devices as needed
-        foreach (var device in devices)
+        ClearPairedDeviceButton();
+        
+        DoLogicWithList(_pairedDevices, devices);
+    }
+    
+    
+    /// <summary>
+    /// This method will be called from the Kotlin plugin while scanning for new devices.
+    /// </summary>
+    /// <param name="jsonDevice">The list of devices as json sent from the plugin</param>
+    private void OnDevicesScannedReceive(string jsonDevice)
+    {
+        Debug.Log("New device detected : " + jsonDevice);
+        
+        // Decode the JSON
+        //  Not pretty but eh
+        BluetoothDevice[] device = new BluetoothDevice[1];
+        device[0] = JsonUtility.FromJson<BluetoothDevice>(jsonDevice);
+        if (!_pairedDevices.Contains(device[0]))
         {
-            if (!_pairedDevices.Contains(device))
+            DoLogicWithList(_scannedDevices, device);
+        }
+    }
+    
+    /// <summary>
+    /// When you quit the scanned UI, you need to clear the List
+    /// Otherwise they'll stay alive and be duplicates
+    /// </summary>
+    private void OnDisable()
+    {
+        ClearScannedDeviceButton();
+    }
+    
+    /// <summary>
+    /// When you enable the main UI, clear the list for an update of the paired devices
+    /// </summary>
+    private void OnEnable()
+    {
+        //ClearPairedDeviceButton();
+    }
+
+    /// <summary>
+    /// This method will help to add the device to the current list if there is no copy of this device.
+    /// If the device is added, create a Gameobject with the attributes and the onClick event to connect
+    /// </summary>
+    /// <param name="current">The current state of the list for scanned or paired devices</param>
+    /// <param name="received">Can be a List with 1 or more BluetoothDevice</param>
+    private void DoLogicWithList(List<BluetoothDevice> current, BluetoothDevice[] received)
+    {
+        Debug.Log("DoLogicWithList");
+        if (received == null)
+        {
+            Debug.LogError("Received array is null.");
+            return;
+        }
+        // Process the devices as needed
+        foreach (var device in received)
+        {
+            if (!current.Contains(device) && device != null)
             {
-                _pairedDevices.Add(device);
+                Debug.Log("DoLogicWithList: Device not in list" + device);
+                Debug.Log("DoLogicWithList: Size list before = " + current.Count);
+                current.Add(device);
+                Debug.Log("DoLogicWithList: Size list after = " + current.Count);
                 if (parentprefab != null && buttonPrefab != null)
                 {
+                    Debug.Log("DoLogicWithList: Devie Button created");
                     // Instanciate the DeviceButton
                     CreateDeviceButton(device);
                 }
@@ -64,12 +146,18 @@ public class BluetoothDeviceReceiver : MonoBehaviour
             }
         }
     }
-
+    
+    /// <summary>
+    /// Create a GameObject from the prefab and instanciate the attributes from the device passed.
+    /// This will help for the UI / visualisation of the state
+    /// </summary>
+    /// <param name="device">BluetoothDevice scanned or already paired</param>
     private void CreateDeviceButton(BluetoothDevice device)
     {
         GameObject newButton = Instantiate(buttonPrefab, parentprefab.transform);
         newButton.GetComponent<DeviceButton>().deviceName.text = device.name;
         newButton.GetComponent<DeviceButton>().deviceAddress.text = device.address;
+        newButton.GetComponent<DeviceButton>().deviceType = device.deviceType;
         newButton.GetComponent<DeviceButton>().deviceIcon.sprite =
             _deviceIcons.ContainsKey(device.deviceType.ToString()) 
                 ? _deviceIcons[device.deviceType.ToString()] 
@@ -78,7 +166,11 @@ public class BluetoothDeviceReceiver : MonoBehaviour
         newButton.GetComponent<Button>().onClick.AddListener(delegate { ConnectToDevice(device); });
         //newButton.GetComponent<Button>().onClick.AddListener(() => ConnectToDevice(device));
     }
-
+    
+    /// <summary>
+    /// Simple link to the plugin method
+    /// </summary>
+    /// <param name="device">Device to connect</param>
     private void ConnectToDevice(BluetoothDevice device)
     {
         TestPlugin.ConnectToDevice(device);

@@ -23,6 +23,7 @@ public class TestPlugin : MonoBehaviour
     {
         try
         {
+            Debug.Log("TestPlugin -> InitializePlugin");
             _pluginClass = new AndroidJavaClass("com.example.plugin.MyUnityPlayer");
         }
         catch (Exception e)
@@ -36,7 +37,26 @@ public class TestPlugin : MonoBehaviour
     {
         if (_pluginClass != null)
         {
+            Debug.Log("TestPlugin -> Showing Toast");
             _pluginClass.CallStatic("showToast", "showToast called from Unity");
+        }
+    }
+
+    public void StartScan()
+    {
+        if (_pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> StartScan");
+            _pluginClass.CallStatic("startScan");
+        }
+    }
+    
+    public void StopScan()
+    {
+        if (_pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> StopScan");
+            _pluginClass.CallStatic("stopScan");
         }
     }
 
@@ -48,12 +68,15 @@ public class TestPlugin : MonoBehaviour
             _pluginClass.CallStatic("getPairedDevices");
         }
     }
+    
     public static void ConnectToDevice(BluetoothDevice device)
     {
         if (_instance != null && _instance._pluginClass != null)
         {
             Debug.Log("TestPlugin -> connectToDevice");
-            _instance._pluginClass.CallStatic("connectToDevice", device);
+            string toConnect = JsonUtility.ToJson(device, true);
+            Debug.Log("Device serialized : " + toConnect);
+            _instance._pluginClass.CallStatic("connectToDevice", toConnect);
         }
         else
         {
@@ -68,7 +91,17 @@ public class TestPlugin : MonoBehaviour
             Debug.Log("TestPlugin -> getRegex");
             return _instance._pluginClass.CallStatic<string>("getRegex");
         }
-
         return null;
+    }
+
+    public bool GetVisibility()
+    {
+        bool res = false;
+        if (_pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> getVisibility");
+            res = _pluginClass.CallStatic<bool>("isDeviceVisible");
+        }
+        return res;
     }
 }

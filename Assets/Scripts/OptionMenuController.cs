@@ -13,8 +13,6 @@ public class OptionMenuController : MonoBehaviour
     [SerializeField] public GameObject inputField;
     
     
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         // Initialize the buttons Listener

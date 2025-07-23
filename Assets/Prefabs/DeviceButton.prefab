@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4735529703022718891}
   - component: {fileID: 780990352362661070}
   - component: {fileID: 175452844282939307}
+  - component: {fileID: 2163335436239904607}
   m_Layer: 5
   m_Name: DeviceButton
   m_TagString: Untagged
@@ -30,8 +31,8 @@ RectTransform:
   m_GameObject: {fileID: 957915293130696854}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 3522799800281390598}
   - {fileID: 6821235976241818161}
@@ -40,7 +41,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 90, y: 30}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7828015848040991594
 CanvasRenderer:
@@ -165,6 +166,20 @@ MonoBehaviour:
   deviceIcon: {fileID: 1796346463606500450}
   deviceName: {fileID: 8835142587380017734}
   deviceAddress: {fileID: 4428114352762780231}
+--- !u!114 &2163335436239904607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 957915293130696854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 2
 --- !u!1 &1370674059706023607
 GameObject:
   m_ObjectHideFlags: 0
