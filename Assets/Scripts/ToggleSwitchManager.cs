@@ -85,10 +85,7 @@ public class ToggleSwitchGroupManager : MonoBehaviour
                 if (button == null)
                     continue;
 
-                if (button == toggleSwitch)
-                    button.ToggleByGroupManager(true);
-                else
-                    button.ToggleByGroupManager(false);
+                button.ToggleByGroupManager(button == toggleSwitch);
             }
         }
     }

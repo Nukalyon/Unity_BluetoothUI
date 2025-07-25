@@ -1,6 +1,8 @@
 using System;
+using Newtonsoft.Json;
+using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class TestPlugin : MonoBehaviour
 {
@@ -74,7 +76,8 @@ public class TestPlugin : MonoBehaviour
         if (_instance != null && _instance._pluginClass != null)
         {
             Debug.Log("TestPlugin -> connectToDevice");
-            string toConnect = JsonUtility.ToJson(device, true);
+            //string toConnect = JsonUtility.ToJson(device, true);
+            string toConnect = JsonConvert.SerializeObject(device);
             Debug.Log("Device serialized : " + toConnect);
             _instance._pluginClass.CallStatic("connectToDevice", toConnect);
         }
@@ -94,14 +97,37 @@ public class TestPlugin : MonoBehaviour
         return null;
     }
 
-    public bool GetVisibility()
+    public static void SetRegex(string regex)
+    {
+        if (_instance != null && _instance._pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> setRegex");
+            _instance._pluginClass.CallStatic("setRegex", regex);
+        }
+    }
+
+    public static void SetVisibility(Image imgVisible)
     {
         bool res = false;
-        if (_pluginClass != null)
+        if (_instance != null && _instance._pluginClass != null)
         {
             Debug.Log("TestPlugin -> getVisibility");
-            res = _pluginClass.CallStatic<bool>("isDeviceVisible");
+            res = _instance._pluginClass.CallStatic<bool>("isDeviceVisible");
         }
-        return res;
+        else
+        {
+            Debug.LogError("TestPlugin instance or plugin not initialized");
+        }
+        imgVisible.color = res ? Color.green : Color.red;
+    }
+
+    public static void Reset(TMP_InputField inputField)
+    {
+        if (_instance != null && _instance._pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> reset");
+            SetRegex(".*");
+            inputField.SetTextWithoutNotify(GetRegex());
+        }
     }
 }

@@ -31,7 +31,7 @@ RectTransform:
   m_GameObject: {fileID: 957915293130696854}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 3522799800281390598}
@@ -166,6 +166,7 @@ MonoBehaviour:
   deviceIcon: {fileID: 1796346463606500450}
   deviceName: {fileID: 8835142587380017734}
   deviceAddress: {fileID: 4428114352762780231}
+  deviceType: 0
 --- !u!114 &2163335436239904607
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,23 +11,27 @@ public class OptionMenuController : MonoBehaviour
     public List<GameObject> panels = new();
     
     [Header("Initialize simple UI")]
-    [SerializeField] public GameObject inputField;
-    
-    
+    [SerializeField] public TMP_InputField inputField;
+    [SerializeField] public Button btnVisible;
+    [SerializeField] public Image imgVisible;
+    [SerializeField] public Button btnReset;
+
+
     void Start()
     {
         // Initialize the buttons Listener
         if (buttons.Count != 0)
         {
-            foreach(Button btn in buttons)
+            foreach (Button btn in buttons)
             {
-                btn.onClick.AddListener(delegate{ToggleMenu(btn);});
+                btn.onClick.AddListener(delegate { ToggleMenu(btn); });
             }
         }
+
         // Initialize the visibility of the panels
         if (panels.Count != 0)
         {
-            foreach(GameObject go in panels)
+            foreach (GameObject go in panels)
             {
                 if (go.activeInHierarchy)
                 {
@@ -34,11 +39,26 @@ public class OptionMenuController : MonoBehaviour
                 }
             }
         }
+
         // Initialize the regex display
         if (inputField != null)
         {
-            InputField fieldRegex = inputField.GetComponent<InputField>();
-            fieldRegex.text = TestPlugin.GetRegex() == null ? ".*" : TestPlugin.GetRegex();
+            //inputField.text = TestPlugin.GetRegex() == null ? ".*" : TestPlugin.GetRegex();
+            inputField.SetTextWithoutNotify(TestPlugin.GetRegex() == null ? ".*" : TestPlugin.GetRegex());
+            // Add the listener to end of change of regex
+            inputField.onEndEdit.AddListener(delegate { TestPlugin.SetRegex(inputField.text); });
+        }
+        
+        //Initialize the button for the visibility of the device
+        if (btnVisible != null && imgVisible != null)
+        {
+            btnVisible.onClick.AddListener(delegate { TestPlugin.SetVisibility(imgVisible); });
+            TestPlugin.SetVisibility(imgVisible);
+        }
+
+        if (btnReset != null)
+        {
+            btnReset.onClick.AddListener(delegate { TestPlugin.Reset(inputField);});
         }
     }
 
