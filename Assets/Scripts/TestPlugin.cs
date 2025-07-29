@@ -121,13 +121,22 @@ public class TestPlugin : MonoBehaviour
         imgVisible.color = res ? Color.green : Color.red;
     }
 
-    public static void Reset(TMP_InputField inputField)
+    public static void ResetInput(TMP_InputField inputField)
     {
         if (_instance != null && _instance._pluginClass != null)
         {
             Debug.Log("TestPlugin -> reset");
             SetRegex(".*");
             inputField.SetTextWithoutNotify(GetRegex());
+        }
+    }
+
+    public void StartServer()
+    {
+        if (_pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> StartServer");
+            _pluginClass.CallStatic("startServer");
         }
     }
 }

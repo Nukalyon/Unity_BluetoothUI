@@ -130,9 +130,7 @@ public class BluetoothDeviceReceiver : MonoBehaviour
             if (!current.Contains(device) && device != null)
             {
                 Debug.Log("DoLogicWithList: Device not in list" + device);
-                Debug.Log("DoLogicWithList: Size list before = " + current.Count);
                 current.Add(device);
-                Debug.Log("DoLogicWithList: Size list after = " + current.Count);
                 if (parentprefab != null && buttonPrefab != null)
                 {
                     Debug.Log("DoLogicWithList: Devie Button created");

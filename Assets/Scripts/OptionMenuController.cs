@@ -43,7 +43,6 @@ public class OptionMenuController : MonoBehaviour
         // Initialize the regex display
         if (inputField != null)
         {
-            //inputField.text = TestPlugin.GetRegex() == null ? ".*" : TestPlugin.GetRegex();
             inputField.SetTextWithoutNotify(TestPlugin.GetRegex() == null ? ".*" : TestPlugin.GetRegex());
             // Add the listener to end of change of regex
             inputField.onEndEdit.AddListener(delegate { TestPlugin.SetRegex(inputField.text); });
@@ -58,7 +57,7 @@ public class OptionMenuController : MonoBehaviour
 
         if (btnReset != null)
         {
-            btnReset.onClick.AddListener(delegate { TestPlugin.Reset(inputField);});
+            btnReset.onClick.AddListener(delegate { TestPlugin.ResetInput(inputField);});
         }
     }
 
