@@ -133,7 +133,7 @@ public class BluetoothDeviceReceiver : MonoBehaviour
                 current.Add(device);
                 if (parentprefab != null && buttonPrefab != null)
                 {
-                    Debug.Log("DoLogicWithList: Devie Button created");
+                    Debug.Log("DoLogicWithList: Device Button created");
                     // Instanciate the DeviceButton
                     CreateDeviceButton(device);
                 }
