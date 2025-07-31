@@ -4,12 +4,14 @@ using UnityEngine;
 
 public class StateManager : MonoBehaviour
 {
+    [SerializeField] private GameObject _gameDisplay;
     [SerializeField] private GameObject _idleDisplay;
     [SerializeField] private GameObject _scanningDisplay;
     [SerializeField] private GameObject _connectingDisplay;
     [SerializeField] private GameObject _connectedDisplay;
     [SerializeField] private GameObject _disconnectingDisplay;
     [SerializeField] private GameObject _disconnectedDisplay;
+    private bool _isMenuOpen;
     private List<GameObject> _panels = new();
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -17,7 +19,9 @@ public class StateManager : MonoBehaviour
     {
         gameObject.name = "StateManager";
         DontDestroyOnLoad(this);
+        _isMenuOpen = false;
         // check if a gameobject is null
+        if(_gameDisplay != null) _panels.Add(_gameDisplay);
         if(_idleDisplay != null) _panels.Add(_idleDisplay);
         if(_scanningDisplay != null) _panels.Add(_scanningDisplay);
         if(_connectingDisplay != null) _panels.Add(_connectingDisplay);
@@ -28,41 +32,41 @@ public class StateManager : MonoBehaviour
 
     private void OnAppStateChange(string state)
     {
-        // AppState : com.example.plugin.model.AppState$Scanning@866848f
-        string currentState = state.PartAfter('$').PartBefore('@');
-        Debug.LogWarning("AppState : " + currentState);
-        GameObject caller = _idleDisplay;
-        switch (currentState)
+        Debug.Log("panels count : " + _panels.Count);
+        if (_isMenuOpen)
         {
-            case "Idle":
-                _idleDisplay.SetActive(true);
-                caller = _idleDisplay;
-                break;
-            case "Scanning":
-                _scanningDisplay.SetActive(true);
-                caller = _scanningDisplay;
-                break;
-            case "Connecting":
-                _connectingDisplay.SetActive(true);
-                caller = _connectingDisplay;
-                break;
-            case "Connected":
-                _connectedDisplay.SetActive(true);
-                caller = _connectedDisplay;
-                break;
-            case "Disconnecting":
-                _disconnectingDisplay.SetActive(true);
-                caller = _disconnectingDisplay;
-                break;
-            case "Disconnected":
-                _disconnectedDisplay.SetActive(true);
-                caller = _disconnectedDisplay;
-                break;
-            default:
-                Debug.Log("State not recognized");
-                break;
+            // AppState : com.example.plugin.model.AppState$Scanning@866848f
+            string currentState = state.PartAfter('$').PartBefore('@');
+            Debug.LogWarning("AppState : " + currentState);
+            switch (currentState)
+            {
+                case "Idle":
+                    ToggleOther(_idleDisplay);
+                    break;
+                case "Scanning":
+                    ToggleOther(_scanningDisplay);
+                    break;
+                case "Connecting":
+                    ToggleOther(_connectingDisplay);
+                    break;
+                case "Connected":
+                    ToggleOther(_connectedDisplay);
+                    break;
+                case "Disconnecting":
+                    ToggleOther(_disconnectingDisplay);
+                    break;
+                case "Disconnected":
+                    ToggleOther(_disconnectedDisplay);
+                    break;
+                default:
+                    Debug.Log("State not recognized");
+                    break;
+            }
         }
-        ToggleOther(caller);
+        else
+        {
+            ToggleOther(_gameDisplay);
+        }
     }
 
     private void ToggleOther(GameObject displayed)
@@ -74,5 +78,12 @@ public class StateManager : MonoBehaviour
                 go.SetActive(false);
             }
         }
+        displayed.SetActive(true);
+    }
+
+    public void SetMenuOpen(bool open)
+    {
+        _isMenuOpen = open;
+        ToggleOther(_isMenuOpen ? _idleDisplay : _gameDisplay);
     }
 }

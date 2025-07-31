@@ -107,7 +107,8 @@ public class BluetoothDeviceReceiver : MonoBehaviour
     /// </summary>
     private void OnEnable()
     {
-        //ClearPairedDeviceButton();
+        ClearPairedDeviceButton();
+        TestPlugin.UpdateDevicePaired();
     }
 
     /// <summary>

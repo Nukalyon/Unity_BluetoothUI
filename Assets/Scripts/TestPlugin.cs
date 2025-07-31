@@ -62,12 +62,12 @@ public class TestPlugin : MonoBehaviour
         }
     }
 
-    public void UpdateDevicePaired()
+    public static void UpdateDevicePaired()
     {
-        if (_pluginClass != null)
+        if (_instance != null && _instance._pluginClass != null)
         {
             Debug.Log("TestPlugin -> getPairedDevices");
-            _pluginClass.CallStatic("getPairedDevices");
+            _instance._pluginClass.CallStatic("getPairedDevices");
         }
     }
     
