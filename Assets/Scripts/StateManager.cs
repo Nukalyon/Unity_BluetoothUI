@@ -8,10 +8,12 @@ public class StateManager : MonoBehaviour
     [SerializeField] private GameObject _idleDisplay;
     [SerializeField] private GameObject _scanningDisplay;
     [SerializeField] private GameObject _connectingDisplay;
-    [SerializeField] private GameObject _connectedDisplay;
+    [SerializeField] private GameObject _connectedClientDisplay;
+    [SerializeField] private GameObject _connectedServerDisplay;
     [SerializeField] private GameObject _disconnectingDisplay;
     [SerializeField] private GameObject _disconnectedDisplay;
     private bool _isMenuOpen;
+    private bool _isServer = false;
     private List<GameObject> _panels = new();
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -19,13 +21,14 @@ public class StateManager : MonoBehaviour
     {
         gameObject.name = "StateManager";
         DontDestroyOnLoad(this);
-        _isMenuOpen = false;
+        SetMenuOpen(false);
         // check if a gameobject is null
         if(_gameDisplay != null) _panels.Add(_gameDisplay);
         if(_idleDisplay != null) _panels.Add(_idleDisplay);
         if(_scanningDisplay != null) _panels.Add(_scanningDisplay);
         if(_connectingDisplay != null) _panels.Add(_connectingDisplay);
-        if(_connectedDisplay != null) _panels.Add(_connectedDisplay);
+        if(_connectedClientDisplay != null) _panels.Add(_connectedClientDisplay);
+        if(_connectedServerDisplay != null) _panels.Add(_connectedServerDisplay);
         if(_disconnectingDisplay != null) _panels.Add(_disconnectingDisplay);
         if(_disconnectedDisplay != null) _panels.Add(_disconnectedDisplay);
     }
@@ -50,7 +53,8 @@ public class StateManager : MonoBehaviour
                     ToggleOther(_connectingDisplay);
                     break;
                 case "Connected":
-                    ToggleOther(_connectedDisplay);
+                    if(_isServer) ToggleOther(_connectedServerDisplay);
+                    else ToggleOther(_connectedClientDisplay);
                     break;
                 case "Disconnecting":
                     ToggleOther(_disconnectingDisplay);
@@ -85,5 +89,10 @@ public class StateManager : MonoBehaviour
     {
         _isMenuOpen = open;
         ToggleOther(_isMenuOpen ? _idleDisplay : _gameDisplay);
+    }
+
+    public void SetIsServer()
+    {
+        _isServer = true;
     }
 }

@@ -87,6 +87,19 @@ public class TestPlugin : MonoBehaviour
         }
     }
 
+    public static void SendMessageToServer(TMP_InputField inputField)
+    {
+        if (_instance != null && _instance._pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> SendMessageToServer");
+            _instance._pluginClass.CallStatic("sendMessage", inputField.text.Trim());
+        }
+        else
+        {
+            Debug.LogError("TestPlugin instance or plugin not initialized");
+        }
+    }
+
     public static string GetRegex()
     {
         if (_instance != null && _instance._pluginClass != null)
