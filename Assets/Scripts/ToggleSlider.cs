@@ -39,21 +39,25 @@ public class ToggleSlider : MonoBehaviour, IPointerClickHandler
 
     protected virtual void Awake()
     {
+        Debug.Log("ToggleSlider -> Awake");
         SetupToggleComponents();
     }
 
 
     private void SetupToggleComponents()
     {
+        Debug.Log("ToggleSlider -> SetupToggleComponents");
         if (_slider != null)
         {
             return;
         }
+        Debug.Log("ToggleSlider -> SetupToggleComponents slider != null");
         SetupSliderComponents();
     }
 
     private void SetupSliderComponents()
     {
+        Debug.Log("ToggleSlider -> SetupSliderComponents");
         _slider = GetComponent<Slider>();
         if (_slider == null)
         {
@@ -69,28 +73,44 @@ public class ToggleSlider : MonoBehaviour, IPointerClickHandler
 
     public void SetupManager(ToggleSwitchGroupManager manager)
     {
+        Debug.Log("ToggleSlider -> SetupManager");
         _toggleSwitchManager = manager;
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        Debug.Log("ToggleSlider -> OnPointerClick");
         Toggle();
     }
 
     private void Toggle()
     {
+        Debug.Log("ToggleSlider -> Toggle");
         if (_toggleSwitchManager != null)
         {
+            Debug.Log("ToggleSlider -> Toggle Group");
             _toggleSwitchManager.ToggleGroup(this);
         }
         else
         {
+            Debug.Log("ToggleSlider -> Togglemanager == null, start animation");
             SetStateAndStartAnimation(!CurrentValue);
         }
     }
 
     public void ToggleByGroupManager(bool valueToSetTo)
     {
+        Debug.Log("ToggleSlider -> ToggleByGroupManager with " + valueToSetTo);
+        if (valueToSetTo)
+        {
+            Debug.Log("ToggleSlider -> ToggleByGroupManager, onToggleOn Invoke");
+            onToggleOn.Invoke();
+        }
+        else
+        {
+            Debug.Log("ToggleSlider -> ToggleByGroupManager, onToggleOff Invoke");
+            onToggleOff.Invoke();
+        }
         SetStateAndStartAnimation(valueToSetTo);
     }
 

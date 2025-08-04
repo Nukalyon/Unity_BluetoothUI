@@ -16,7 +16,7 @@ public class StateManager : MonoBehaviour
     private bool _isServer = false;
     private List<GameObject> _panels = new();
     
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    
     void Start()
     {
         gameObject.name = "StateManager";

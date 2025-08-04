@@ -152,4 +152,26 @@ public class TestPlugin : MonoBehaviour
             _pluginClass.CallStatic("startServer");
         }
     }
+
+    public static bool GetBluetoothStatus()
+    {
+        //If plugin not initialized, keep it false
+        bool res = false;
+        if (_instance != null && _instance._pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> GetBluetoothStatus");
+            res = _instance._pluginClass.CallStatic<bool>("getBluetoothStatus");
+        }
+        return res;
+    }
+
+    public static void RequestBluetoothActivation()
+    {
+        if (_instance != null && _instance._pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> RequestBluetoothActivation");
+            _instance._pluginClass.CallStatic("requestBluetoothActivation");
+        }
+    }
+    
 }
