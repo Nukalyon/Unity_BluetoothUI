@@ -37,9 +37,9 @@ public class ToggleSlider : MonoBehaviour, IPointerClickHandler
         _slider.value = sliderValue;
     }
 
-    protected virtual void Awake()
+    protected virtual void Start()
     {
-        Debug.Log("ToggleSlider -> Awake");
+        Debug.Log("ToggleSlider -> Start");
         SetupToggleComponents();
     }
 

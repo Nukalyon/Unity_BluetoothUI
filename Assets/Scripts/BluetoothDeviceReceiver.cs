@@ -8,6 +8,15 @@ public class BluetoothDeviceReceiver : MonoBehaviour
     private List<BluetoothDevice> _scannedDevices = new();
     public GameObject parentprefab;
     public GameObject buttonPrefab;
+
+    public enum DeviceReceiver
+    {
+        Other,
+        List_Paired_Devices,
+        List_Scanned_Devices
+    }
+
+    public DeviceReceiver dropDown = DeviceReceiver.Other;
     
     private static Dictionary<string, Sprite> _deviceIcons;
     
@@ -31,6 +40,10 @@ public class BluetoothDeviceReceiver : MonoBehaviour
             { "AUDIO",    Resources.Load<Sprite>($"Images/Casque_Icon") },
             { "UNKNOWN",  Resources.Load<Sprite>($"Images/Unknown_Icon") }
         };
+        if (dropDown == DeviceReceiver.Other)
+        {
+            Debug.LogError("Drop down device receiver should not be Other");
+        }
     }
     
     /// <summary>
@@ -99,7 +112,15 @@ public class BluetoothDeviceReceiver : MonoBehaviour
     /// </summary>
     private void OnDisable()
     {
-        ClearScannedDeviceButton();
+        // switch (dropDown)
+        // {
+        //     case DeviceReceiver.List_Scanned_Devices:
+        //         ClearScannedDeviceButton();
+        //         break;
+        //     default:
+        //         Debug.LogError("Unknown device receiver type");
+        //         break;
+        // }
     }
     
     /// <summary>
@@ -107,8 +128,19 @@ public class BluetoothDeviceReceiver : MonoBehaviour
     /// </summary>
     private void OnEnable()
     {
-        ClearPairedDeviceButton();
-        TestPlugin.UpdateDevicePaired();
+        switch (dropDown)
+        {
+            case DeviceReceiver.List_Paired_Devices:
+                ClearPairedDeviceButton();
+                TestPlugin.UpdateDevicePaired();
+                break;
+            case DeviceReceiver.List_Scanned_Devices:
+                ClearScannedDeviceButton();
+                break;
+            default:
+                Debug.LogError("Unknown device receiver type");
+                break;
+        }
     }
 
     /// <summary>

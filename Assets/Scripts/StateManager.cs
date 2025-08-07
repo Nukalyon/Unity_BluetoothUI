@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class StateManager : MonoBehaviour
 {
+    [Header("LifeCycle of UI")]
     [SerializeField] private GameObject _gameDisplay;
     [SerializeField] private GameObject _idleDisplay;
     [SerializeField] private GameObject _scanningDisplay;
@@ -12,9 +13,17 @@ public class StateManager : MonoBehaviour
     [SerializeField] private GameObject _connectedServerDisplay;
     [SerializeField] private GameObject _disconnectingDisplay;
     [SerializeField] private GameObject _disconnectedDisplay;
-    private bool _isMenuOpen;
+    
+    [Header("In case of Bluetooth disconnecting")]
+    [SerializeField] private GameObject _bluetoothDisplay;
+    [SerializeField] private ToggleSlider _bluetoothSlider;
+    
+    private bool isBluetoothEnabled = false;
+    
+    private bool _isMenuOpen = false;
     private bool _isServer = false;
     private List<GameObject> _panels = new();
+    private int currentPanel;
     
     
     void Start()
@@ -22,7 +31,8 @@ public class StateManager : MonoBehaviour
         gameObject.name = "StateManager";
         DontDestroyOnLoad(this);
         SetMenuOpen(false);
-        // check if a gameobject is null
+        currentPanel = 0;
+        
         if(_gameDisplay != null) _panels.Add(_gameDisplay);
         if(_idleDisplay != null) _panels.Add(_idleDisplay);
         if(_scanningDisplay != null) _panels.Add(_scanningDisplay);
@@ -31,15 +41,26 @@ public class StateManager : MonoBehaviour
         if(_connectedServerDisplay != null) _panels.Add(_connectedServerDisplay);
         if(_disconnectingDisplay != null) _panels.Add(_disconnectingDisplay);
         if(_disconnectedDisplay != null) _panels.Add(_disconnectedDisplay);
+        
+        if(_bluetoothDisplay != null) _panels.Add(_bluetoothDisplay);
+        isBluetoothEnabled = TestPlugin.GetBluetoothStatus();
+        
+        Debug.LogWarning("Panels Count = " + _panels.Count);
+        Debug.LogWarning("isBluetooth enabled = " + isBluetoothEnabled);
+        ToggleOther(isBluetoothEnabled ? _panels[currentPanel] : _bluetoothDisplay);
     }
 
     private void OnAppStateChange(string state)
     {
-        Debug.Log("panels count : " + _panels.Count);
-        if (_isMenuOpen)
+        if(!isBluetoothEnabled)
+        {
+            ToggleOther(_bluetoothDisplay);
+        }
+        else if (_isMenuOpen)
         {
             // AppState : com.example.plugin.model.AppState$Scanning@866848f
             string currentState = state.PartAfter('$').PartBefore('@');
+            
             Debug.LogWarning("AppState : " + currentState);
             switch (currentState)
             {
@@ -73,6 +94,36 @@ public class StateManager : MonoBehaviour
         }
     }
 
+    private void OnBluetoothStateChange(string state)
+    {
+        Debug.Log("bluetooth state turned " + state);
+        //Still usefull ?
+        switch (state)
+        {
+            case "ON":
+                TriggerToggleSwitchInvoke(true);
+                break;
+            case "OFF":
+                TriggerToggleSwitchInvoke(false);
+                break;
+        }
+        Debug.LogWarning("isBluetoothEnabled " + isBluetoothEnabled);
+        ToggleOther(isBluetoothEnabled ? _panels[currentPanel] : _bluetoothDisplay);
+    }
+
+    private void TriggerToggleSwitchInvoke(bool blNewStatus)
+    {
+        if (_bluetoothSlider != null)
+        {
+            bool toggleStatus = _bluetoothSlider.CurrentValue;
+            if (toggleStatus != blNewStatus)
+            {
+                _bluetoothSlider.ToggleByGroupManager(blNewStatus);
+            }
+            isBluetoothEnabled = TestPlugin.GetBluetoothStatus();
+        }
+    }
+
     private void ToggleOther(GameObject displayed)
     {
         foreach (GameObject go in _panels)
@@ -83,6 +134,7 @@ public class StateManager : MonoBehaviour
             }
         }
         displayed.SetActive(true);
+        currentPanel = _panels.IndexOf(displayed) == _panels.Count - 1 ? currentPanel : _panels.IndexOf(displayed);
     }
 
     public void SetMenuOpen(bool open)

@@ -173,5 +173,4 @@ public class TestPlugin : MonoBehaviour
             _instance._pluginClass.CallStatic("requestBluetoothActivation");
         }
     }
-    
 }

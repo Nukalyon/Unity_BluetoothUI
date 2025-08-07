@@ -5,7 +5,7 @@ using UnityEngine;
 public class ToggleSwitchGroupManager : MonoBehaviour
 {
     [Header("Start Value")]
-    [SerializeField] private ToggleSlider initialToggleSwitch;
+    [SerializeField] public ToggleSlider initialToggleSwitch;
 
     [Header("Toggle Options")]
     [SerializeField] private bool allCanBeToggledOff;

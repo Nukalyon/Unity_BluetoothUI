@@ -28,9 +28,9 @@ public class ToggleSwitchColor : ToggleSlider
         TransitionEffect -= ChangeColor;
     }
 
-    protected override void Awake()
+    protected override void Start()
     {
-        base.Awake();
+        base.Start();
         ChangeColor();
     }
 
