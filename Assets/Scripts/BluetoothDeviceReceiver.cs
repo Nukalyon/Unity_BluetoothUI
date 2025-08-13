@@ -6,16 +6,21 @@ public class BluetoothDeviceReceiver : MonoBehaviour
 {
     private List<BluetoothDevice> _pairedDevices = new();
     private List<BluetoothDevice> _scannedDevices = new();
+    // This GameObject is the parent who will receive the device found / paired
     public GameObject parentprefab;
+    // Prefab for a BluetoothDevice, setup when a device is found / paired
     public GameObject buttonPrefab;
-
+    
+    // This enum is to switch the behaviour from Scanned and Paired
+    // Maybe remove the Other but easy to find if the setup isn't done correctly
     public enum DeviceReceiver
     {
         Other,
         List_Paired_Devices,
         List_Scanned_Devices
     }
-
+    // Dropdown in the editor for an easy setup
+    // Init to Other
     public DeviceReceiver dropDown = DeviceReceiver.Other;
     
     private static Dictionary<string, Sprite> _deviceIcons;
@@ -29,10 +34,14 @@ public class BluetoothDeviceReceiver : MonoBehaviour
     void Start()
     {
         DontDestroyOnLoad(gameObject);
+        // Clear all the paired and scanned prefab in the editor
         ClearPairedDeviceButton();
         ClearScannedDeviceButton();
+        // Just to be sure the prefab used in the editor are deleted on launch
         Debug.Assert(gameObject.transform.childCount == 0, "gameObject.transform.childCount == 0", this);
         
+        // Load resources from the folder
+        // I never check if the resource is found or not
         _deviceIcons = new Dictionary<string, Sprite>
         {
             { "PHONE",    Resources.Load<Sprite>($"Images/Phone_Icon") },
@@ -40,7 +49,12 @@ public class BluetoothDeviceReceiver : MonoBehaviour
             { "AUDIO",    Resources.Load<Sprite>($"Images/Casque_Icon") },
             { "UNKNOWN",  Resources.Load<Sprite>($"Images/Unknown_Icon") }
         };
-        if (dropDown == DeviceReceiver.Other)
+        // Check if the user changed the dropdown value
+        if (dropDown != DeviceReceiver.Other)
+        {
+            gameObject.name = dropDown.ToString();
+        }
+        else
         {
             Debug.LogError("Drop down device receiver should not be Other");
         }
@@ -91,7 +105,7 @@ public class BluetoothDeviceReceiver : MonoBehaviour
     /// <summary>
     /// This method will be called from the Kotlin plugin while scanning for new devices.
     /// </summary>
-    /// <param name="jsonDevice">The list of devices as json sent from the plugin</param>
+    /// <param name="jsonDevice">The device found as json sent from the plugin</param>
     private void OnDevicesScannedReceive(string jsonDevice)
     {
         Debug.Log("New device detected : " + jsonDevice);
@@ -100,6 +114,7 @@ public class BluetoothDeviceReceiver : MonoBehaviour
         //  Not pretty but eh
         BluetoothDevice[] device = new BluetoothDevice[1];
         device[0] = JsonUtility.FromJson<BluetoothDevice>(jsonDevice);
+        // I decode as a List but there is only one device in it, index = 0
         if (!_pairedDevices.Contains(device[0]))
         {
             DoLogicWithList(_scannedDevices, device);
@@ -107,27 +122,14 @@ public class BluetoothDeviceReceiver : MonoBehaviour
     }
     
     /// <summary>
-    /// When you quit the scanned UI, you need to clear the List
-    /// Otherwise they'll stay alive and be duplicates
-    /// </summary>
-    private void OnDisable()
-    {
-        // switch (dropDown)
-        // {
-        //     case DeviceReceiver.List_Scanned_Devices:
-        //         ClearScannedDeviceButton();
-        //         break;
-        //     default:
-        //         Debug.LogError("Unknown device receiver type");
-        //         break;
-        // }
-    }
-    
-    /// <summary>
-    /// When you enable the main UI, clear the list for an update of the paired devices
+    /// Called when the parent prefab is being enabled, depending on the dropdown value a clear is done and
+    /// a call to a specific function in the TestPlugin file
+    /// This function is also called when the bluetooth is disabled and enabled again
+    /// For example : UI = Paired Device, onEnable we need to clear the paired device and reset it by updating
     /// </summary>
     private void OnEnable()
     {
+        Debug.LogWarning(dropDown + " -> OnEnable");
         switch (dropDown)
         {
             case DeviceReceiver.List_Paired_Devices:
@@ -136,6 +138,7 @@ public class BluetoothDeviceReceiver : MonoBehaviour
                 break;
             case DeviceReceiver.List_Scanned_Devices:
                 ClearScannedDeviceButton();
+                TestPlugin.StartScan();
                 break;
             default:
                 Debug.LogError("Unknown device receiver type");
@@ -151,7 +154,7 @@ public class BluetoothDeviceReceiver : MonoBehaviour
     /// <param name="received">Can be a List with 1 or more BluetoothDevice</param>
     private void DoLogicWithList(List<BluetoothDevice> current, BluetoothDevice[] received)
     {
-        Debug.Log("DoLogicWithList");
+        //Debug.Log("DoLogicWithList");
         if (received == null)
         {
             Debug.LogError("Received array is null.");
@@ -162,17 +165,17 @@ public class BluetoothDeviceReceiver : MonoBehaviour
         {
             if (!current.Contains(device) && device != null)
             {
-                Debug.Log("DoLogicWithList: Device not in list" + device);
+                //Debug.Log("DoLogicWithList: Device not in list" + device);
                 current.Add(device);
                 if (parentprefab != null && buttonPrefab != null)
                 {
-                    Debug.Log("DoLogicWithList: Device Button created");
+                    //Debug.Log("DoLogicWithList: Device Button created");
                     // Instanciate the DeviceButton
                     CreateDeviceButton(device);
                 }
                 else
                 {
-                    Debug.Log("parent prefab is null and / or buttonPrefab is null");
+                    Debug.LogError("parent prefab is null and / or buttonPrefab is null");
                 }
             }
         }
@@ -194,17 +197,8 @@ public class BluetoothDeviceReceiver : MonoBehaviour
                 ? _deviceIcons[device.deviceType.ToString()] 
                 : _deviceIcons["UNKNOWN"];
         // Which one ?
-        newButton.GetComponent<Button>().onClick.AddListener(delegate { ConnectToDevice(device); });
+        newButton.GetComponent<Button>().onClick.AddListener(delegate { TestPlugin.ConnectToDevice(device); });
         //newButton.GetComponent<Button>().onClick.AddListener(() => ConnectToDevice(device));
-    }
-    
-    /// <summary>
-    /// Simple link to the plugin method
-    /// </summary>
-    /// <param name="device">Device to connect</param>
-    private void ConnectToDevice(BluetoothDevice device)
-    {
-        TestPlugin.ConnectToDevice(device);
     }
 }
 

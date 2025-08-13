@@ -9,7 +9,12 @@ public class MessageReceiver : MonoBehaviour
     {
         if(_messageText == null) Debug.LogError("TMP_Text is null, ref it in MessageReceiver.cs");
     }
-
+    
+    /// <summary>
+    /// This method is called when a message is received and device is connected
+    /// In here it just concatenate to the others messages
+    /// </summary>
+    /// <param name="message"> Message received from another device </param>
     public void OnMessageReceive(string message)
     {
         Debug.Log("Message received : " + message);

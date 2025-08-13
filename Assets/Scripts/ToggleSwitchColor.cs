@@ -3,6 +3,11 @@ using UnityEngine.UI;
 
 public class ToggleSwitchColor : ToggleSlider
 {
+    /*
+     * Crédit à la chaîne : Christina Creates Games (https://www.youtube.com/@ChristinaCreatesGames)
+     * ref: https://www.youtube.com/watch?v=673nETMP22Q
+     */
+    
     [Header("Nouvelles couleurs")]
     [SerializeField] private Image backgroundImage;
     [Space]

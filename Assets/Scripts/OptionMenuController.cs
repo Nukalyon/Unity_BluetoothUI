@@ -6,16 +6,17 @@ using UnityEngine.UI;
 public class OptionMenuController : MonoBehaviour
 {
     [Header("Initialize simple UI")]
-    [SerializeField] public TMP_InputField inputField;
-    [SerializeField] public Button btnVisible;
-    [SerializeField] public Image imgVisible;
-    [SerializeField] public Button btnReset;
+    [SerializeField] public TMP_InputField inputField; // Input for the Regex
+    [SerializeField] public Button btnVisible; // Button for device visibility
+    [SerializeField] public Image imgVisible; // UI representing the state, green = visible, red = not visible
+    [SerializeField] public Button btnReset; // Button to reset Advanced Setting (regex mostly)
 
-
+    
+    
     void Start()
     {
 
-        // Initialize the regex display
+        // Initialize the regex display + the listener
         if (inputField != null)
         {
             inputField.SetTextWithoutNotify(TestPlugin.GetRegex() == null ? ".*" : TestPlugin.GetRegex());
@@ -23,13 +24,16 @@ public class OptionMenuController : MonoBehaviour
             inputField.onEndEdit.AddListener(delegate { TestPlugin.SetRegex(inputField.text); });
         }
         
-        //Initialize the button for the visibility of the device
+        // Initialize the button for the visibility of the device
+        // This one needs a rework (split in 2 functions ?)
         if (btnVisible != null && imgVisible != null)
         {
             btnVisible.onClick.AddListener(delegate { TestPlugin.SetVisibility(imgVisible); });
+            // basic call to init on startup
             TestPlugin.SetVisibility(imgVisible);
         }
-
+        
+        // Initialize the Reset Button Action
         if (btnReset != null)
         {
             btnReset.onClick.AddListener(delegate { TestPlugin.ResetInput(inputField);});

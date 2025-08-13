@@ -4,12 +4,17 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Main class that will be the bridge between the plugin and the Unity scripts
+/// Be sure that when you want to call a method in the plugin, the JVMName is the same
+/// </summary>
 public class TestPlugin : MonoBehaviour
 {
     private AndroidJavaClass _pluginClass;
     private static TestPlugin _instance;
     private void Awake()
     {
+        // Singleton
         if (_instance == null)
         {
             _instance = this;
@@ -23,6 +28,7 @@ public class TestPlugin : MonoBehaviour
     }
     private void InitializePlugin()
     {
+        // Try to load the Custom UnityPlayer in the plugin as ref in _pluginClass
         try
         {
             Debug.Log("TestPlugin -> InitializePlugin");
@@ -34,7 +40,10 @@ public class TestPlugin : MonoBehaviour
         }
     }
 
-
+    /// <summary>
+    /// Link to the method showToast in the plugin
+    /// Launch a Toast whe a simple message
+    /// </summary>
     public void ShowToast()
     {
         if (_pluginClass != null)
@@ -43,25 +52,34 @@ public class TestPlugin : MonoBehaviour
             _pluginClass.CallStatic("showToast", "showToast called from Unity");
         }
     }
-
-    public void StartScan()
+    
+    /// <summary>
+    /// This method start the discovery of bluetooth devices
+    /// </summary>
+    public static void StartScan()
     {
-        if (_pluginClass != null)
+        if (_instance !=null && _instance._pluginClass != null)
         {
             Debug.Log("TestPlugin -> StartScan");
-            _pluginClass.CallStatic("startScan");
+            _instance._pluginClass.CallStatic("startScan");
         }
     }
     
-    public void StopScan()
+    /// <summary>
+    /// This method stop the discovery of bluetooth devices
+    /// </summary>
+    public static void StopScan()
     {
-        if (_pluginClass != null)
+        if (_instance !=null && _instance._pluginClass != null)
         {
             Debug.Log("TestPlugin -> StopScan");
-            _pluginClass.CallStatic("stopScan");
+            _instance._pluginClass.CallStatic("stopScan");
         }
     }
-
+    
+    /// <summary>
+    /// Called to update the paired devices
+    /// </summary>
     public static void UpdateDevicePaired()
     {
         if (_instance != null && _instance._pluginClass != null)
@@ -71,6 +89,11 @@ public class TestPlugin : MonoBehaviour
         }
     }
     
+    /// <summary>
+    /// Try to connect to the target BluetoothDevice (paired or scanned)
+    /// Need to serialize it otherwise the plugin doesn't understand the device as is
+    /// </summary>
+    /// <param name="device"> Device to connect </param>
     public static void ConnectToDevice(BluetoothDevice device)
     {
         if (_instance != null && _instance._pluginClass != null)
@@ -86,20 +109,57 @@ public class TestPlugin : MonoBehaviour
             Debug.LogError("TestPlugin instance or plugin not initialized");
         }
     }
-
-    public static void SendMessageToServer(TMP_InputField inputField)
+    
+    /// <summary>
+    /// Disconnect for the device connected
+    /// </summary>
+    public static void DisconnectFromDevice()
     {
         if (_instance != null && _instance._pluginClass != null)
         {
-            Debug.Log("TestPlugin -> SendMessageToServer");
-            _instance._pluginClass.CallStatic("sendMessage", inputField.text.Trim());
+            Debug.Log("TestPlugin -> disconnectFromDevice");
+            _instance._pluginClass.CallStatic("disconnect");
         }
         else
         {
             Debug.LogError("TestPlugin instance or plugin not initialized");
         }
     }
-
+    
+    /// <summary>
+    /// Try to reconnect to the device lastly disconnected
+    /// </summary>
+    public static void Reconnect()
+    {
+        if (_instance != null && _instance._pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> Reconnect");
+            _instance._pluginClass.CallStatic("retryConnection");
+        }
+    }
+    
+    /// <summary>
+    /// Try to send the text from the inputField to the other device (server)
+    /// </summary>
+    /// <param name="inputField"> Inputfield of the message to send </param>
+    public static void SendMessageToServer(TMP_InputField inputField)
+    {
+        if (_instance != null && _instance._pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> SendMessageToServer");
+            _instance._pluginClass.CallStatic("sendMessage", inputField.text.Trim());
+            inputField.text = "";
+        }
+        else
+        {
+            Debug.LogError("TestPlugin instance or plugin not initialized");
+        }
+    }
+    
+    /// <summary>
+    /// get the regex from the plugin
+    /// </summary>
+    /// <returns>string : Representing the regex </returns>
     public static string GetRegex()
     {
         if (_instance != null && _instance._pluginClass != null)
@@ -109,7 +169,11 @@ public class TestPlugin : MonoBehaviour
         }
         return null;
     }
-
+    
+    /// <summary>
+    /// Set the new regex inside the plugin
+    /// </summary>
+    /// <param name="regex"> string extracted from an InputField </param>
     public static void SetRegex(string regex)
     {
         if (_instance != null && _instance._pluginClass != null)
@@ -118,7 +182,15 @@ public class TestPlugin : MonoBehaviour
             _instance._pluginClass.CallStatic("setRegex", regex);
         }
     }
-
+    
+    /// <summary>
+    /// Get the visibility of the device
+    /// |->  if true -> change the image color
+    /// |-> else -> request the visibility and then change the image color
+    ///
+    /// Can be better coded though
+    /// </summary>
+    /// <param name="imgVisible"> Image to change the color </param>
     public static void SetVisibility(Image imgVisible)
     {
         bool res = false;
@@ -126,6 +198,11 @@ public class TestPlugin : MonoBehaviour
         {
             Debug.Log("TestPlugin -> getVisibility");
             res = _instance._pluginClass.CallStatic<bool>("isDeviceVisible");
+            if (!res)
+            {
+                _instance._pluginClass.CallStatic("requestVisibility");
+                res = _instance._pluginClass.CallStatic<bool>("isDeviceVisible");
+            }
         }
         else
         {
@@ -134,6 +211,10 @@ public class TestPlugin : MonoBehaviour
         imgVisible.color = res ? Color.green : Color.red;
     }
 
+    /// <summary>
+    /// Reset the Regex in the plugin and update the inputField text
+    /// </summary>
+    /// <param name="inputField"> target for Regex display </param>
     public static void ResetInput(TMP_InputField inputField)
     {
         if (_instance != null && _instance._pluginClass != null)
@@ -143,7 +224,7 @@ public class TestPlugin : MonoBehaviour
             inputField.SetTextWithoutNotify(GetRegex());
         }
     }
-
+    
     public void StartServer()
     {
         if (_pluginClass != null)
@@ -152,10 +233,14 @@ public class TestPlugin : MonoBehaviour
             _pluginClass.CallStatic("startServer");
         }
     }
-
+    
+    /// <summary>
+    /// Ask the plugin if the bluetooth is enabled
+    /// If the plugin doesn't load, keep it at false
+    /// </summary>
+    /// <returns></returns>
     public static bool GetBluetoothStatus()
     {
-        //If plugin not initialized, keep it false
         bool res = false;
         if (_instance != null && _instance._pluginClass != null)
         {
@@ -164,7 +249,10 @@ public class TestPlugin : MonoBehaviour
         }
         return res;
     }
-
+    
+    /// <summary>
+    /// Request to the user to let the device be visible
+    /// </summary>
     public static void RequestBluetoothActivation()
     {
         if (_instance != null && _instance._pluginClass != null)
