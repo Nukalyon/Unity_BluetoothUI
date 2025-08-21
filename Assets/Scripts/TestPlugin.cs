@@ -109,6 +109,25 @@ public class TestPlugin : MonoBehaviour
             Debug.LogError("TestPlugin instance or plugin not initialized");
         }
     }
+
+    /// <summary>
+    /// Try to create a pairing between the main device and the target.
+    /// </summary>
+    /// <param name="device"> Device targeted for pairing </param>
+    public static void PairToDevice(BluetoothDevice device)
+    {
+        if (_instance != null && _instance._pluginClass != null)
+        {
+            Debug.Log("TestPlugin -> pairToDevice");
+            string toPair = JsonConvert.SerializeObject(device);
+            Debug.Log("Device serialized : " + toPair);
+            _instance._pluginClass.CallStatic("pairToDevice", toPair);
+        }
+        else
+        {
+            Debug.LogError("TestPlugin instance or plugin not initialized");
+        }
+    }
     
     /// <summary>
     /// Disconnect for the device connected
@@ -184,31 +203,19 @@ public class TestPlugin : MonoBehaviour
     }
     
     /// <summary>
-    /// Get the visibility of the device
-    /// |->  if true -> change the image color
-    /// |-> else -> request the visibility and then change the image color
-    ///
-    /// Can be better coded though
+    /// Request to the user to make the device visible
     /// </summary>
-    /// <param name="imgVisible"> Image to change the color </param>
-    public static void SetVisibility(Image imgVisible)
+    public static void RequestVisibility()
     {
-        bool res = false;
         if (_instance != null && _instance._pluginClass != null)
         {
             Debug.Log("TestPlugin -> getVisibility");
-            res = _instance._pluginClass.CallStatic<bool>("isDeviceVisible");
-            if (!res)
-            {
-                _instance._pluginClass.CallStatic("requestVisibility");
-                res = _instance._pluginClass.CallStatic<bool>("isDeviceVisible");
-            }
+            _instance._pluginClass.CallStatic("requestVisibility");
         }
         else
         {
             Debug.LogError("TestPlugin instance or plugin not initialized");
         }
-        imgVisible.color = res ? Color.green : Color.red;
     }
 
     /// <summary>

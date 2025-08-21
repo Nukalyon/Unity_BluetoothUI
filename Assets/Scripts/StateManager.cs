@@ -1,22 +1,26 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class StateManager : MonoBehaviour
 {
+    [Header("In case of Bluetooth disconnecting")]
+    [SerializeField] private GameObject _bluetoothDisplay;
+    
     [Header("LifeCycle of UI")]
     [SerializeField] private GameObject _gameDisplay;
     [SerializeField] private GameObject _idleDisplay;
     [SerializeField] private GameObject _scanningDisplay;
     [SerializeField] private GameObject _connectingDisplay;
+    [SerializeField] private GameObject _pairingDisplay;
     [SerializeField] private GameObject _connectedClientDisplay;
     [SerializeField] private GameObject _connectedServerDisplay;
     [SerializeField] private GameObject _disconnectingDisplay;
     [SerializeField] private GameObject _disconnectedDisplay;
     
-    [Header("In case of Bluetooth disconnecting")]
-    [SerializeField] private GameObject _bluetoothDisplay;
-    [SerializeField] private ToggleSlider _bluetoothSlider;
+    [Header("Visibility of the device")]
+    [SerializeField] public Image imgVisible; // UI representing the state, green = visible, red = not visible
     
     private bool _isBluetoothEnabled = false;
     private bool _isMenuOpen = false;
@@ -26,7 +30,7 @@ public class StateManager : MonoBehaviour
     private int CurrentPanel { get; set; }
     // var to save the state of the app sent by the plugin
     // Used to switch the display of UI
-    private string CurrentState { get; set; }
+    internal static string CurrentState { get; set; }
     
     
     void Start()
@@ -36,20 +40,21 @@ public class StateManager : MonoBehaviour
         DontDestroyOnLoad(this);
         // If the menu pause was open
         SetMenuOpen(false);
-        // Panel 0 is "in the game"
-        CurrentPanel = 0;
+        // Panel 1 is "in the game"
+        CurrentPanel = 1;
         
+        // Need to keep the bluetoothDisplay in first position
+        if(_bluetoothDisplay != null) _panels.Add(_bluetoothDisplay);
         // Check if Null
         if(_gameDisplay != null) _panels.Add(_gameDisplay);
         if(_idleDisplay != null) _panels.Add(_idleDisplay);
         if(_scanningDisplay != null) _panels.Add(_scanningDisplay);
         if(_connectingDisplay != null) _panels.Add(_connectingDisplay);
+        if(_pairingDisplay != null) _panels.Add(_pairingDisplay);
         if(_connectedClientDisplay != null) _panels.Add(_connectedClientDisplay);
         if(_connectedServerDisplay != null) _panels.Add(_connectedServerDisplay);
         if(_disconnectingDisplay != null) _panels.Add(_disconnectingDisplay);
         if(_disconnectedDisplay != null) _panels.Add(_disconnectedDisplay);
-        // Need to keep the bluetoothDisplay in last position
-        if(_bluetoothDisplay != null) _panels.Add(_bluetoothDisplay);
         _isBluetoothEnabled = TestPlugin.GetBluetoothStatus();
         
         Debug.LogWarning("Panels Count = " + _panels.Count);
@@ -97,7 +102,7 @@ public class StateManager : MonoBehaviour
                     ToggleOther(_disconnectedDisplay);
                     break;
                 default:
-                    Debug.Log("State not recognized");
+                    Debug.Log("State not recognized = " + CurrentState);
                     break;
             }
         }
@@ -156,6 +161,20 @@ public class StateManager : MonoBehaviour
     }
     
     /// <summary>
+    /// When the visibility changes in the app, auto-update
+    /// Can be changed with user request on the button
+    ///         or
+    /// By the software inside the device, sometimes it cancel visibility automatically
+    /// </summary>
+    /// <param name="state"> The new state of the visibility (true or false) </param>
+    private void OnVisibilityStateChange(string state)  // can be 0 or 1
+    {
+        bool stateChanged = state == "1";
+        Debug.Log("visibility state turned " + state);
+        imgVisible.color = stateChanged ? Color.green : Color.red;
+    }
+    
+    /// <summary>
     /// Toggle all the others panels in the list to not visible
     /// </summary>
     /// <param name="displayed"> GameObject to set visible </param>
@@ -170,7 +189,7 @@ public class StateManager : MonoBehaviour
         }
         displayed.SetActive(true);
         // Not really sure for the update but it doesn't break
-        CurrentPanel = _panels.IndexOf(displayed) == _panels.Count - 1 ? CurrentPanel : _panels.IndexOf(displayed);
+        CurrentPanel = _panels.IndexOf(displayed) == 0 ? CurrentPanel : _panels.IndexOf(displayed);
     }
 
     public void SetMenuOpen(bool open)

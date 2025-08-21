@@ -197,8 +197,17 @@ public class BluetoothDeviceReceiver : MonoBehaviour
                 ? _deviceIcons[device.deviceType.ToString()] 
                 : _deviceIcons["UNKNOWN"];
         // Which one ?
-        newButton.GetComponent<Button>().onClick.AddListener(delegate { TestPlugin.ConnectToDevice(device); });
-        //newButton.GetComponent<Button>().onClick.AddListener(() => ConnectToDevice(device));
+        newButton.GetComponent<Button>().onClick.AddListener(delegate {
+                switch (dropDown)
+                {
+                    case  DeviceReceiver.List_Paired_Devices:
+                        TestPlugin.ConnectToDevice(device);
+                        break;
+                    case  DeviceReceiver.List_Scanned_Devices:
+                        TestPlugin.PairToDevice(device);
+                        break;
+                }
+            });
     }
 }
 

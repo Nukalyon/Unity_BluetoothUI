@@ -8,7 +8,6 @@ public class OptionMenuController : MonoBehaviour
     [Header("Initialize simple UI")]
     [SerializeField] public TMP_InputField inputField; // Input for the Regex
     [SerializeField] public Button btnVisible; // Button for device visibility
-    [SerializeField] public Image imgVisible; // UI representing the state, green = visible, red = not visible
     [SerializeField] public Button btnReset; // Button to reset Advanced Setting (regex mostly)
 
     
@@ -26,11 +25,9 @@ public class OptionMenuController : MonoBehaviour
         
         // Initialize the button for the visibility of the device
         // This one needs a rework (split in 2 functions ?)
-        if (btnVisible != null && imgVisible != null)
+        if (btnVisible != null)
         {
-            btnVisible.onClick.AddListener(delegate { TestPlugin.SetVisibility(imgVisible); });
-            // basic call to init on startup
-            TestPlugin.SetVisibility(imgVisible);
+            btnVisible.onClick.AddListener(delegate { TestPlugin.RequestVisibility(); });
         }
         
         // Initialize the Reset Button Action
